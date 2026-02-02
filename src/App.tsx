@@ -1,37 +1,66 @@
 import '@mantine/core/styles.css';
-import { MantineProvider, Button } from '@mantine/core';
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { MantineProvider, Container, SimpleGrid, Pagination, Group, Loader, Center } from '@mantine/core';
+import { useState, useEffect } from 'react';
+import './App.css';
+import axios from 'axios';
+import type { Movie, PaginatedResponse } from './types';
+import { MovieCard } from './components/MovieCard';
 
 const App = () => {
-  const [count, setCount] = useState(0)
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [activePage, setActivePage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get<PaginatedResponse<Movie>>(`http://localhost/api/movies?page=${activePage}`);
+        setMovies(response.data.data);
+        setTotalPages(response.data.pagination.last_page);
+      } catch (error) {
+        console.error('Error fetching movies:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMovies();
+  }, [activePage]);
 
   return (
     <MantineProvider>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <Button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </Button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Container size="xl" py="xl">
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Movies</h1>
+
+        {loading ? (
+          <Center h={400}>
+            <Loader size="xl" />
+          </Center>
+        ) : (
+          <>
+            <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg">
+              {movies.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} />
+              ))}
+            </SimpleGrid>
+
+            <Group justify="center" mt="xl">
+              <Pagination
+                total={totalPages}
+                value={activePage}
+                onChange={setActivePage}
+                size="lg"
+                radius="md"
+                withEdges
+              />
+            </Group>
+          </>
+        )}
+      </Container>
     </MantineProvider>
-  )
+  );
 }
 
-export default App
+export default App;
+
