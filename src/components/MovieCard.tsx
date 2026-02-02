@@ -1,4 +1,6 @@
-import { Card, Image, Text, Badge, Button, Group } from '@mantine/core';
+import { Card, Image, Text, Badge, Button, Group, ActionIcon } from '@mantine/core';
+import { useState } from 'react';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import type { Movie } from '../types';
 
 interface MovieCardProps {
@@ -6,6 +8,8 @@ interface MovieCardProps {
 }
 
 export const MovieCard = ({ movie }: MovieCardProps) => {
+    const [isFavorite, setIsFavorite] = useState(false);
+
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
@@ -18,7 +22,7 @@ export const MovieCard = ({ movie }: MovieCardProps) => {
             </Card.Section>
 
             <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500} truncate="end">{movie.title}</Text>
+                <Text fw={500} truncate="end" style={{ flex: 1 }}>{movie.title}</Text>
                 <Badge color="pink" variant="light">
                     {movie.imdb_rating}
                 </Badge>
@@ -28,9 +32,20 @@ export const MovieCard = ({ movie }: MovieCardProps) => {
                 {movie.plot}
             </Text>
 
-            <Button color="blue" fullWidth mt="md" radius="md">
-                View Details
-            </Button>
+            <Group mt="md" gap="xs">
+                <Button color="blue" flex={1} radius="md">
+                    View Details
+                </Button>
+                <ActionIcon
+                    variant="light"
+                    size="lg"
+                    radius="md"
+                    color="red"
+                    onClick={() => setIsFavorite(!isFavorite)}
+                >
+                    {isFavorite ? <FaHeart size={18} /> : <FaRegHeart size={18} />}
+                </ActionIcon>
+            </Group>
         </Card>
     );
 }
