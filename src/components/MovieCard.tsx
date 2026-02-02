@@ -3,12 +3,32 @@ import { useState } from 'react';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import type { Movie } from '../types';
 
+import { storage } from '../lib/storage';
+import { STORAGE_KEYS } from '../constants/storageKeys';
+
 interface MovieCardProps {
     movie: Movie;
 }
 
 export const MovieCard = ({ movie }: MovieCardProps) => {
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(() => {
+        const favorites = storage.get<number[]>(STORAGE_KEYS.FAVORITES, []);
+        return favorites.includes(movie.id);
+    });
+
+    const toggleFavorite = () => {
+        const favorites = storage.get<number[]>(STORAGE_KEYS.FAVORITES, []);
+        let newFavorites;
+
+        if (isFavorite) {
+            newFavorites = favorites.filter(id => id !== movie.id);
+        } else {
+            newFavorites = [...favorites, movie.id];
+        }
+
+        storage.set(STORAGE_KEYS.FAVORITES, newFavorites);
+        setIsFavorite(!isFavorite);
+    };
 
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -41,7 +61,7 @@ export const MovieCard = ({ movie }: MovieCardProps) => {
                     size="lg"
                     radius="md"
                     color="red"
-                    onClick={() => setIsFavorite(!isFavorite)}
+                    onClick={toggleFavorite}
                 >
                     {isFavorite ? <FaHeart size={18} /> : <FaRegHeart size={18} />}
                 </ActionIcon>
