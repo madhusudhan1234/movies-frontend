@@ -1,7 +1,6 @@
 import '@mantine/core/styles.css';
 import { MantineProvider, Container, SimpleGrid, Pagination, Group, Loader, Center } from '@mantine/core';
 import { useEffect } from 'react';
-import './App.css';
 import { useMovieStore } from './store/useMovieStore';
 import { MovieCard } from './components/MovieCard';
 

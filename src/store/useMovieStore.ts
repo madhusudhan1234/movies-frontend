@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import axios from 'axios';
-import type { Movie, PaginatedResponse } from '../types';
+import MovieService from '../services/movieService.ts';
+import type { Movie } from '../types';
 
 interface MovieState {
     movies: Movie[];
@@ -19,10 +19,10 @@ export const useMovieStore = create<MovieState>((set) => ({
     fetchMovies: async (page: number) => {
         set({ loading: true });
         try {
-            const response = await axios.get<PaginatedResponse<Movie>>(`http://localhost/api/movies?page=${page}`);
+            const data = await MovieService.fetchMovies(page);
             set({
-                movies: response.data.data,
-                totalPages: response.data.pagination.last_page,
+                movies: data.data,
+                totalPages: data.pagination.last_page,
                 loading: false,
             });
         } catch (error) {
