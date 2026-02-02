@@ -6,6 +6,11 @@ class MovieService {
         const response = await Api.get(API_ENDPOINTS.MOVIES, { page });
         return response.body;
     }
+
+    async getMovie(id: string) {
+        const response = await Api.get(`${API_ENDPOINTS.MOVIES}/${id}`);
+        return response.body.data;
+    }
 }
 
 export default new MovieService();
