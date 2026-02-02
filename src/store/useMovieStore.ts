@@ -7,7 +7,9 @@ interface MovieState {
     activePage: number;
     totalPages: number;
     loading: boolean;
+    selectedMovie: Movie | null;
     fetchMovies: (page: number) => Promise<void>;
+    fetchMovie: (id: string) => Promise<void>;
     setActivePage: (page: number) => void;
 }
 
@@ -16,6 +18,7 @@ export const useMovieStore = create<MovieState>((set) => ({
     activePage: 1,
     totalPages: 1,
     loading: false,
+    selectedMovie: null,
     fetchMovies: async (page: number) => {
         set({ loading: true });
         try {
@@ -27,6 +30,19 @@ export const useMovieStore = create<MovieState>((set) => ({
             });
         } catch (error) {
             console.error('Error fetching movies:', error);
+            set({ loading: false });
+        }
+    },
+    fetchMovie: async (id: string) => {
+        set({ loading: true, selectedMovie: null });
+        try { // Add try catch block
+            const data = await MovieService.getMovie(id);
+            set({
+                selectedMovie: data,
+                loading: false,
+            });
+        } catch (error) {
+            console.error('Error fetching movie:', error);
             set({ loading: false });
         }
     },
