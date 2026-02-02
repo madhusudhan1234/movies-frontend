@@ -7,9 +7,9 @@ interface MovieInfoItemProps {
 
 export const MovieInfoItem = ({ label, value }: MovieInfoItemProps) => {
     return (
-        <Grid.Col span={6}>
-            <Text fw={700}>{label}</Text>
-            <Text c="dimmed">{value || 'N/A'}</Text>
+        <Grid.Col span={{ base: 12, xs: 6 }}>
+            <Text fw={700} size="sm">{label}</Text>
+            <Text c="dimmed" size="sm">{value || 'N/A'}</Text>
         </Grid.Col>
     );
 };

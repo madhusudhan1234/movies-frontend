@@ -10,9 +10,9 @@ export const GenreBadges = ({ genre }: GenreBadgesProps) => {
     const genres = genre.split(',').map(g => g.trim()).filter(Boolean);
 
     return (
-        <Group gap="xs">
+        <Group gap="xs" wrap="wrap">
             {genres.map((g) => (
-                <Badge key={g} variant="outline" color="blue">
+                <Badge key={g} variant="outline" color="blue" size="sm">
                     {g}
                 </Badge>
             ))}

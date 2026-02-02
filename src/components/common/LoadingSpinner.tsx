@@ -18,7 +18,7 @@ export const LoadingSpinner = ({ fullScreen = false, message }: LoadingSpinnerPr
         : {};
 
     return (
-        <Center h={fullScreen ? '100vh' : 400} style={style}>
+        <Center h={fullScreen ? '100vh' : '100%'} mih={fullScreen ? undefined : 300} style={style}>
             <Stack align="center" gap="md">
                 <Loader size="xl" />
                 {message && <Text c="dimmed">{message}</Text>}
