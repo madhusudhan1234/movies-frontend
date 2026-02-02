@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import MovieService from '../services/movieService.ts';
+import MovieService from '../services/movieService';
 import type { Movie } from '../types';
 
 interface MovieState {
@@ -7,22 +7,26 @@ interface MovieState {
     activePage: number;
     totalPages: number;
     loading: boolean;
+    searchQuery: string;
     selectedMovie: Movie | null;
-    fetchMovies: (page: number) => Promise<void>;
+    fetchMovies: (page: number, query?: string) => Promise<void>;
     fetchMovie: (id: string) => Promise<void>;
     setActivePage: (page: number) => void;
+    setSearchQuery: (query: string) => void;
 }
 
-export const useMovieStore = create<MovieState>((set) => ({
+export const useMovieStore = create<MovieState>((set, get) => ({
     movies: [],
     activePage: 1,
     totalPages: 1,
     loading: false,
+    searchQuery: '',
     selectedMovie: null,
-    fetchMovies: async (page: number) => {
+    fetchMovies: async (page: number, query?: string) => {
         set({ loading: true });
         try {
-            const data = await MovieService.fetchMovies(page);
+            const searchQuery = query !== undefined ? query : get().searchQuery;
+            const data = await MovieService.fetchMovies(page, searchQuery);
             set({
                 movies: data.data,
                 totalPages: data.pagination.last_page,
@@ -35,7 +39,7 @@ export const useMovieStore = create<MovieState>((set) => ({
     },
     fetchMovie: async (id: string) => {
         set({ loading: true, selectedMovie: null });
-        try { // Add try catch block
+        try {
             const data = await MovieService.getMovie(id);
             set({
                 selectedMovie: data,
@@ -47,4 +51,5 @@ export const useMovieStore = create<MovieState>((set) => ({
         }
     },
     setActivePage: (page: number) => set({ activePage: page }),
+    setSearchQuery: (query: string) => set({ searchQuery: query, activePage: 1 }),
 }));
