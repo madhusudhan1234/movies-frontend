@@ -8,7 +8,7 @@ interface MovieDetailResponse {
 
 class MovieService {
   async fetchMovies(page: number, query?: string): Promise<PaginatedResponse<Movie>> {
-    const params: Record<string, string | number> = { page }
+    const params: Record<string, string | number> = {page}
     if (query) {
       params.q = query
     }
