@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
-import { render, type RenderOptions } from '@testing-library/react'
+import { configure, render, type RenderOptions } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { MantineProvider } from '@mantine/core'
 
@@ -27,3 +27,5 @@ export * from '@testing-library/react'
 
 // Override the render method
 export { customRender as render }
+
+configure({ testIdAttribute: 'data-id' });

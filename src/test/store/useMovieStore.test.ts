@@ -15,7 +15,7 @@ vi.mock('../../services/movieService', () => ({
 // Helper to create a mock paginated response
 const createMockPaginatedResponse = <T>(data: T[], totalPages = 1): PaginatedResponse<T> => ({
     data,
-    pagination: {
+    metadata: {
         total: data.length,
         count: data.length,
         per_page: 10,
