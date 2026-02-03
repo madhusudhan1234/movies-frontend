@@ -29,7 +29,7 @@ export const useMovieStore = create<MovieState>((set, get) => ({
             const data = await MovieService.fetchMovies(page, searchQuery);
             set({
                 movies: data.data,
-                totalPages: data.pagination.last_page,
+                totalPages: data.pagination.total_pages,
                 loading: false,
             });
         } catch (error) {

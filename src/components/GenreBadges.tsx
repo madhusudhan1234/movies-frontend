@@ -1,19 +1,18 @@
 import { Badge, Group } from '@mantine/core';
+import type { Genre } from '../types';
 
 interface GenreBadgesProps {
-    genre: string | null | undefined;
+    genres: Genre[] | null | undefined;
 }
 
-export const GenreBadges = ({ genre }: GenreBadgesProps) => {
-    if (!genre) return null;
-
-    const genres = genre.split(',').map(g => g.trim()).filter(Boolean);
+export const GenreBadges = ({ genres }: GenreBadgesProps) => {
+    if (!genres || genres.length === 0) return null;
 
     return (
         <Group gap="xs" wrap="wrap">
-            {genres.map((g) => (
-                <Badge key={g} variant="outline" color="blue" size="sm">
-                    {g}
+            {genres.map((genre, index) => (
+                <Badge key={`${genre.name}-${index}`} variant="outline" color="blue" size="sm">
+                    {genre.label}
                 </Badge>
             ))}
         </Group>

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { act } from '@testing-library/react'
 import { useMovieStore } from '../../store/useMovieStore'
 import MovieService from '../../services/movieService'
+import type { Movie, PaginatedResponse } from '../../types'
 
 // Mock the MovieService
 vi.mock('../../services/movieService', () => ({
@@ -10,6 +11,50 @@ vi.mock('../../services/movieService', () => ({
         getMovie: vi.fn(),
     },
 }))
+
+// Helper to create a mock paginated response
+const createMockPaginatedResponse = <T>(data: T[], totalPages = 1): PaginatedResponse<T> => ({
+    data,
+    pagination: {
+        total: data.length,
+        count: data.length,
+        per_page: 10,
+        current_page: 1,
+        total_pages: totalPages,
+        links: {},
+    },
+    message: '',
+})
+
+// Helper to create a partial movie mock
+const createMockMovie = (overrides: Partial<Movie> = {}): Movie => ({
+    id: 1,
+    imdb_id: 'tt1234567',
+    title: 'Mock Movie',
+    year: 2023,
+    rated: 'PG-13',
+    released: '2023-01-15',
+    runtime: '120 min',
+    plot: 'A mock movie plot',
+    language: 'English',
+    country: 'USA',
+    awards: ['Best Picture'],
+    metascore: '75',
+    imdb_rating: '8.5',
+    imdb_votes: '10000',
+    type: 'movie',
+    dvd: '2023-06-01',
+    box_office_collection: 100000000,
+    production: 'Test Production',
+    website: 'https://example.com',
+    created_at: '2023-01-01',
+    updated_at: '2023-01-01',
+    genres: [{ name: 'action', label: 'Action' }],
+    directors: [{ full_name: 'John Director' }],
+    actors: [{ full_name: 'Actor One' }],
+    producers: [{ full_name: 'Producer One' }],
+    ...overrides,
+})
 
 describe('useMovieStore', () => {
     beforeEach(() => {
@@ -66,7 +111,7 @@ describe('useMovieStore', () => {
     describe('fetchMovies', () => {
         it('sets loading to true while fetching', async () => {
             vi.mocked(MovieService.fetchMovies).mockImplementation(
-                () => new Promise((resolve) => setTimeout(() => resolve({ data: [], pagination: { last_page: 1 } }), 100))
+                () => new Promise((resolve) => setTimeout(() => resolve(createMockPaginatedResponse<Movie>([])), 100))
             )
 
             const promise = useMovieStore.getState().fetchMovies(1)
@@ -75,11 +120,8 @@ describe('useMovieStore', () => {
         })
 
         it('updates movies and totalPages on success', async () => {
-            const mockMovies = [{ id: 1, title: 'Movie 1' }, { id: 2, title: 'Movie 2' }]
-            vi.mocked(MovieService.fetchMovies).mockResolvedValue({
-                data: mockMovies,
-                pagination: { last_page: 5 },
-            })
+            const mockMovies = [createMockMovie({ id: 1, title: 'Movie 1' }), createMockMovie({ id: 2, title: 'Movie 2' })]
+            vi.mocked(MovieService.fetchMovies).mockResolvedValue(createMockPaginatedResponse(mockMovies, 5))
 
             await act(async () => {
                 await useMovieStore.getState().fetchMovies(1)
@@ -92,10 +134,7 @@ describe('useMovieStore', () => {
         })
 
         it('uses provided query when given', async () => {
-            vi.mocked(MovieService.fetchMovies).mockResolvedValue({
-                data: [],
-                pagination: { last_page: 1 },
-            })
+            vi.mocked(MovieService.fetchMovies).mockResolvedValue(createMockPaginatedResponse<Movie>([]))
 
             await act(async () => {
                 await useMovieStore.getState().fetchMovies(1, 'custom query')
@@ -106,10 +145,7 @@ describe('useMovieStore', () => {
 
         it('uses store searchQuery when query not provided', async () => {
             useMovieStore.setState({ searchQuery: 'stored query' })
-            vi.mocked(MovieService.fetchMovies).mockResolvedValue({
-                data: [],
-                pagination: { last_page: 1 },
-            })
+            vi.mocked(MovieService.fetchMovies).mockResolvedValue(createMockPaginatedResponse<Movie>([]))
 
             await act(async () => {
                 await useMovieStore.getState().fetchMovies(2)
@@ -132,10 +168,10 @@ describe('useMovieStore', () => {
     })
 
     describe('fetchMovie', () => {
-        const mockMovie = { id: 1, title: 'Single Movie' }
+        const mockMovie = createMockMovie({ id: 1, title: 'Single Movie' })
 
         it('sets loading to true and clears selectedMovie while fetching', async () => {
-            useMovieStore.setState({ selectedMovie: { id: 99, title: 'Old' } as any })
+            useMovieStore.setState({ selectedMovie: createMockMovie({ id: 99, title: 'Old' }) })
             vi.mocked(MovieService.getMovie).mockImplementation(
                 () => new Promise((resolve) => setTimeout(() => resolve(mockMovie), 100))
             )

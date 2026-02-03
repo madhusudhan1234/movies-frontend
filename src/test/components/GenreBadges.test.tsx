@@ -3,38 +3,42 @@ import { render, screen } from '../test-utils'
 import { GenreBadges } from '../../components/GenreBadges'
 
 describe('GenreBadges', () => {
-    it('returns null when genre is null', () => {
-        render(<GenreBadges genre={null} />)
+    it('returns null when genres is null', () => {
+        render(<GenreBadges genres={null} />)
         expect(screen.queryByRole('status')).not.toBeInTheDocument()
-        // Verify no badge text is rendered
         expect(screen.queryByText(/./)).not.toBeInTheDocument()
     })
 
-    it('returns null when genre is undefined', () => {
-        render(<GenreBadges genre={undefined} />)
+    it('returns null when genres is undefined', () => {
+        render(<GenreBadges genres={undefined} />)
         expect(screen.queryByText(/./)).not.toBeInTheDocument()
     })
 
-    it('returns null when genre is empty string', () => {
-        render(<GenreBadges genre="" />)
+    it('returns null when genres is empty array', () => {
+        render(<GenreBadges genres={[]} />)
         expect(screen.queryByText(/./)).not.toBeInTheDocument()
     })
 
     it('renders single genre badge', () => {
-        render(<GenreBadges genre="Action" />)
+        render(<GenreBadges genres={[{ name: 'action', label: 'Action' }]} />)
         expect(screen.getByText('Action')).toBeInTheDocument()
     })
 
-    it('parses comma-separated genres and renders multiple badges', () => {
-        render(<GenreBadges genre="Action, Drama, Comedy" />)
+    it('renders multiple genre badges', () => {
+        const genres = [
+            { name: 'action', label: 'Action' },
+            { name: 'drama', label: 'Drama' },
+            { name: 'comedy', label: 'Comedy' },
+        ]
+        render(<GenreBadges genres={genres} />)
         expect(screen.getByText('Action')).toBeInTheDocument()
         expect(screen.getByText('Drama')).toBeInTheDocument()
         expect(screen.getByText('Comedy')).toBeInTheDocument()
     })
 
-    it('trims whitespace from genre names', () => {
-        render(<GenreBadges genre="  Horror  ,  Thriller  " />)
-        expect(screen.getByText('Horror')).toBeInTheDocument()
-        expect(screen.getByText('Thriller')).toBeInTheDocument()
+    it('displays genre label not name', () => {
+        render(<GenreBadges genres={[{ name: 'sci-fi', label: 'Sci-Fi' }]} />)
+        expect(screen.getByText('Sci-Fi')).toBeInTheDocument()
+        expect(screen.queryByText('sci-fi')).not.toBeInTheDocument()
     })
 })
