@@ -43,7 +43,7 @@ bun install
 
 ### 3. Configure environment variables
 
-Create a `.env` file in the project root:
+Create a `.env.local` file in the project root:
 
 ```env
 VITE_API_BASE_URL=http://localhost/api
