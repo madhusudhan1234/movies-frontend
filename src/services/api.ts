@@ -1,24 +1,41 @@
-import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosError, type AxiosResponse, type RawAxiosResponseHeaders, type AxiosResponseHeaders } from 'axios';
 
-const cache: Record<string, any> = {};
+export interface ApiResponse<T = unknown> {
+    body: T;
+    status: number;
+    headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
+}
+
+interface CachedResponse {
+    data: unknown;
+    status: number;
+    headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
+}
+
+const cache: Record<string, AxiosResponse> = {};
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 class Api {
-    async get(resource: string, params: Record<string, any> = {}, cacheEnable = true, token: string | null = null) {
+    async get<T = unknown>(
+        resource: string,
+        params: Record<string, string | number | boolean> = {},
+        cacheEnable = true,
+        token: string | null = null
+    ): Promise<ApiResponse<T>> {
         const config: AxiosRequestConfig = {
             headers: {
                 ...(token && { Authorization: `Bearer ${token}` }),
             }
         };
-        return this.request(resource, params, config, cacheEnable);
+        return this.request<T>(resource, params, config, cacheEnable);
     }
 
-    private async request(
+    private async request<T = unknown>(
         resource: string,
-        params: Record<string, any> = {},
+        params: Record<string, string | number | boolean> = {},
         config: AxiosRequestConfig = {},
         cacheEnable = false
-    ) {
+    ): Promise<ApiResponse<T>> {
         const headers = {
             "Content-Type": "application/json",
             ...config.headers,
@@ -31,7 +48,7 @@ class Api {
         };
 
         try {
-            let res: any = {};
+            let res: AxiosResponse;
             let url = `${BASE_URL}${resource}`;
 
             const queryString = Object.keys(params)
@@ -53,31 +70,36 @@ class Api {
                 }
             }
 
-            return this.successResponse(res);
+            return this.successResponse<T>(res);
         } catch (error) {
-            return this.errorResponse(error as AxiosError | any);
+            return this.errorResponse(error as AxiosError);
         }
     }
 
-    successResponse(response: any) {
-        return this.response(response);
+    successResponse<T = unknown>(response: AxiosResponse): ApiResponse<T> {
+        return this.response<T>(response);
     }
 
-    errorResponse(error: any): never {
+    errorResponse(error: AxiosError): never {
         if (error?.code === "ERR_NETWORK") {
-            const networkResponse = {
+            const networkResponse: CachedResponse = {
                 data: { message: "Network error found!" },
                 status: 503,
                 headers: {},
             };
             throw this.response(networkResponse);
         }
-        throw this.response(error.response || error);
+        const errorData: CachedResponse = error.response || {
+            data: error.message,
+            status: error.status || 500,
+            headers: {},
+        };
+        throw this.response(errorData);
     }
 
-    response({ data, status, headers }: any) {
+    response<T = unknown>({ data, status, headers }: CachedResponse | AxiosResponse): ApiResponse<T> {
         return {
-            body: data,
+            body: data as T,
             status,
             headers,
         };

@@ -11,25 +11,31 @@ const mockMovie: Movie = {
     rated: 'PG-13',
     released: '2023-01-15',
     runtime: '120 min',
-    genre: 'Action, Drama',
-    director: 'John Director',
-    writer: 'Jane Writer',
-    actors: 'Actor One, Actor Two',
     plot: 'This is a test plot for the movie. It should be truncated in the card display.',
     language: 'English',
     country: 'USA',
-    awards: 'None',
+    awards: ['Best Picture', 'Best Director'],
     poster: 'https://example.com/poster.jpg',
     metascore: '75',
     imdb_rating: '8.5',
     imdb_votes: '10000',
     type: 'movie',
-    dvd: 'N/A',
-    box_office: '$100M',
+    dvd: '2023-06-01',
+    box_office_collection: 100000000,
     production: 'Test Production',
     website: 'https://example.com',
     created_at: '2023-01-01',
     updated_at: '2023-01-01',
+    genres: [
+        { name: 'action', label: 'Action' },
+        { name: 'drama', label: 'Drama' },
+    ],
+    directors: [{ full_name: 'John Director' }],
+    actors: [
+        { full_name: 'Actor One' },
+        { full_name: 'Actor Two' },
+    ],
+    producers: [{ full_name: 'Producer One' }],
 }
 
 describe('MovieCard', () => {
@@ -64,7 +70,6 @@ describe('MovieCard', () => {
 
     it('renders FavoriteButton component', () => {
         render(<MovieCard movie={mockMovie} />)
-        // FavoriteButton renders an ActionIcon with aria-label
         expect(screen.getByRole('button', { name: /add to favorites/i })).toBeInTheDocument()
     })
 })
